@@ -100,7 +100,7 @@ RNL <- function(Y, C=F, cov=T){
   if (C==T){
     
     dsquare=diag(var(Y))
-    Y=Y/sqrt(dsquare)
+    Y=t(apply(Y,1,function(y) y/sqrt(dsquare)))
     
   }else{
     
