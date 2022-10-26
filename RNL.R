@@ -79,7 +79,6 @@ VIteration <- function(Z, Lambda){
     diagnorm=norm(t(V)%*%ratioV%*%V%*%diag(Lambdainv)
                   - diag(Lambdainv)%*%t(V)%*%ratioV%*%V, "F")
     
-  print(diagnorm)
   
   }
  
