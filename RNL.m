@@ -16,26 +16,27 @@ end
 
 x=x./sqrt(dsquare);
 if normscale == 1
-    z=x./sqrt(sum(x.^2,2));
-    [~,eig_fix] = QIS(z,1);
+    Z=x./sqrt(sum(x.^2,2));
+    [~,eig_fix] = QIS(Z,1);
 else
     [~,eig_fix] = QIS(x,1);
-    z=x;
+    Z=x;
 end
 
-eig_fix=sortLambda(eig_fix, n, p);
-
-Psi_tmp = cov(z);
-[V0,lam] = eig(Psi_tmp,'vector');
-[~,ind] = sort(lam);
-V0 = V0(:,ind);
 
 if complicated==true
-    Gamma=VIteration(z,eig_fix, V0);
+    V=VIteration(Z,eig_fix);
 end
 
-Sigma=diag(sqrt(dsquare))*Gamma*diag(sqrt(dsquare));
+Hinv=V*diag(eig_fix.^(-1))*V';
+lower = diag((Z*Hinv*Z')./p);
+Y=(Z./sqrt(lower));
+H0=QIS(Y,1);
+
+Sigma=diag(sqrt(dsquare))*H0*diag(sqrt(dsquare));
 Sigma = SymPDcovmatrix(Sigma);
+
+Sigma=p.*Sigma./trace(Sigma);
 
 end
 

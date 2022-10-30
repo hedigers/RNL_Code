@@ -5,7 +5,7 @@ rep.row <- function(x, n){
 #### Adapted QIS function taken from 
 #### https://github.com/MikeWolf007/covShrinkage/blob/main/qis.R
 #### Only the output and the name of the function was changed
-QIS <- function(Y, k = -1) {
+QIS <- function(Y, k = 1) {
   dim.Y <- dim(Y)
   N <- dim.Y[1]
   p <- dim.Y[2]

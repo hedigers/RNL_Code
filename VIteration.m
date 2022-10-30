@@ -1,9 +1,10 @@
-function [H] = VIteration(Z, eig_fix, V0)
+function [V] = VIteration(Z, eig_fix)
 
 tol = 1e-4;
 [~,p] = size(Z);
 eig_fix_inv=eig_fix.^(-1);
-V=V0;
+%V=V0;
+V=eye(p);
 
 i=0;
 diagnorm=1000;
@@ -12,10 +13,10 @@ while abs(diagnorm)> tol
 
     i=i+1;
 
-    if i > 200
-        warning("More than 200 iterations")
-        break
-    end
+%     if i > 200
+%         warning("More than 200 iterations")
+%         break
+%     end
 
     V_old=V;
 
@@ -30,14 +31,11 @@ while abs(diagnorm)> tol
     [~, ind] =sort(lam);
     V=V(:,ind);
 
-    diagnorm=norm(H_old-V*diag(eig_fix)*V');
+    diagnorm=norm(V'*ratioV*V*diag(eig_fix_inv) -diag(eig_fix_inv)*V'*ratioV*V );
+    %%%norm(H_old-V*diag(eig_fix)*V');
 
 end
 
-Hinv=V*diag(eig_fix_inv)*V';
-lower = diag((Z*Hinv*Z')./p);
-Y=(Z./sqrt(lower));
 
-H=QIS(Y,1);
 
 end
