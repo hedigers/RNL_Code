@@ -23,6 +23,8 @@ else
     Z=x;
 end
 
+[eig_fix] = sortLambda(eig_fix, n, p);
+
 
 if complicated==true
     V=VIteration(Z,eig_fix);
