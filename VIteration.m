@@ -71,7 +71,7 @@ while abs(diagnorm) > tol
         diagnorm = norm(H_new-H_old);
     else
         % diagnorm = norm(H_old-V*diag(eig_fix)*V')
-        diagnorm = norm(V_old'*ratioV_old*V_old*diag(eig_fix_inv) - diag(eig_fix_inv)*V'*ratioV*V, 'fro')
+        diagnorm = norm(V_old'*ratioV_old*V_old*diag(eig_fix_inv) - diag(eig_fix_inv)*V'*ratioV*V, 'fro');
     end
 
 end
