@@ -88,25 +88,25 @@ VIteration <- function(Z, Lambda){
 }
 
 ### Robust nonlinear shrinkage, where Y is an nxp data matrix and C = T refers to the R-C-NL approach.
-RNL <- function(Y, C = T){
+RNL <- function(X, C = T){
   
-  n <- dim(Y)[1]
-  p <- dim(Y)[2]
+  n <- dim(X)[1]
+  p <- dim(X)[2]
   
-  Y <- scale(Y,scale=F)
-  traceShat <- (diag(var(Y)))
+  X <- scale(X,scale=F)
+  traceShat <- sum(diag(var(X)))
   
   if (C == T){
     
-    dsquare <- diag(var(Y))
-    Y <- t(apply(Y,1,function(y){y/sqrt(dsquare)}))
+    dsquare <- diag(var(X))
+    X <- t(apply(X,1,function(y){y/sqrt(dsquare)}))
     
   } else {
     
     dsquare <- rep(1,p) 
   }
   
-  Z <- t(apply(Y,1, function(x){x/sqrt(sum(x^2))}))
+  Z <- t(apply(X,1, function(x){x/sqrt(sum(x^2))}))
        
   Lambda<-myQIS(Z)[[2]]
   Lambda<-sort(Lambda)
@@ -115,9 +115,9 @@ RNL <- function(Y, C = T){
   
   H_inv <- V%*%diag(Lambda^(-1))%*%t(V)
   lower <- diag((Z%*%H_inv%*%t(Z))/p)
-  Y <- Z/sqrt(lower)
+  X <- Z/sqrt(lower)
   
-  H0 <- myQIS(Y)[[1]]
+  H0 <- myQIS(X)[[1]]
   
   H <- diag(sqrt(dsquare))%*%H0%*%diag(sqrt(dsquare))
   
