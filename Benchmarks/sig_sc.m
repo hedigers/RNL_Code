@@ -1,7 +1,10 @@
-function [sig] = sig_sc(rho, X)
 
-% X is nXp
-% X is assumed to be centered
+% Helper function used in Robust_Lin_Shrink (est_type = 1), where X is nxp and assumed to
+% be centered.
+
+%%
+
+function [sig] = sig_sc(rho, X)
 
 eps = 0.01;
 

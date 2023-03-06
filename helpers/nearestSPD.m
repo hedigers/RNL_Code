@@ -1,4 +1,4 @@
-function Ahat = nearestSPD(A)
+
 % nearestSPD - the nearest (in Frobenius norm) Symmetric Positive Definite matrix to A
 % usage: Ahat = nearestSPD(A)
 %
@@ -7,13 +7,18 @@ function Ahat = nearestSPD(A)
 % where H is the symmetric polar factor of B=(A + A')/2."
 %
 % http://www.sciencedirect.com/science/article/pii/0024379588902236
-%
-% arguments: (input)
-%  A - square matrix, which will be converted to the nearest Symmetric
+
+%% Input:
+
+%  A: square matrix, which will be converted to the nearest Symmetric
 %    Positive Definite Matrix.
-%
-% Arguments: (output)
-%  Ahat - The matrix chosen as the nearest SPD matrix to A.
+
+%% Output:
+
+% Ahat: the matrix chosen as the nearest SPD matrix to A.
+
+function Ahat = nearestSPD(A)
+
 if nargin ~= 1
   error('Exactly one argument must be provided.')
 end

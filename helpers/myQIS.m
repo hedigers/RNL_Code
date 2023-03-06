@@ -1,4 +1,13 @@
-function [sigmahat,deltaQIS]=QIS(Y,k)          % sigmahat:covariance matrix; Y:raw data
+
+% Quadratic-Inverse Shrinkage (QIS)
+
+% Olivier Ledoit. Michael Wolf. "Quadratic shrinkage for large covariance matrices." Bernoulli 28 (3) 1519 - 
+% 1547, August 2022. https://doi.org/10.3150/20-BEJ1315 
+%
+% see:
+% https://projecteuclid.org/journals/bernoulli/volume-28/issue-3/Quadratic-shrinkage-for-large-covariance-matrices/10.3150/20-BEJ1315.full
+
+function [sigmahat,deltaQIS]=myQIS(Y,k)          % sigmahat:covariance matrix; Y:raw data
 %%% EXTRACT sample eigenvalues sorted in ascending order and eigenvectors %%%
 [N,p]=size(Y);                      % sample size and matrix dimension
 if (nargin<2)||isnan(k)||isempty(k) % default setting
@@ -27,5 +36,4 @@ else % case where sample covariance matrix is singular
    delta=[repmat(delta0,[p-n 1]);1./(invlambda.*Atheta2)];
 end
 deltaQIS=delta.*(sum(lambda)/sum(delta)); % preserve trace
-% deltaQIS=delta;
 sigmahat=u*diag(deltaQIS)*u';             % reconstruct covariance matrix

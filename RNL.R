@@ -1,3 +1,5 @@
+
+### Some helper function
 rep.row <- function(x, n){
   matrix(rep(x, each = n), nrow = n)
 }
@@ -5,7 +7,7 @@ rep.row <- function(x, n){
 #### Adapted QIS function taken from 
 #### https://github.com/MikeWolf007/covShrinkage/blob/main/qis.R
 #### Only the output and the name of the function was changed
-QIS <- function(Y, k = 1) {
+myQIS <- function(Y, k = 1) {
   dim.Y <- dim(Y)
   N <- dim.Y[1]
   p <- dim.Y[2]
@@ -36,102 +38,90 @@ QIS <- function(Y, k = 1) {
   deltaQIS <- delta * (sum(lambda) / sum(delta))    # preserve trace
   sigmahat <- u %*% diag(deltaQIS) %*% t(u)    #reconstruct covariance matrix
   
- return(list(Sig=sigmahat, Lambda=deltaQIS, U=u))
+  return(list(Sig=sigmahat, Lambda=deltaQIS, U=u))
   
 }
 
-
+### helper function for RNL, updating the eigenvectors.
 VIteration <- function(Z, Lambda){
   
-  tol<-1e-4
+  tol <- 1e-10
   n <- dim(Z)[1]
   p <- dim(Z)[2]
   V0 <- V <-diag(p)
-  Lambdainv<-Lambda^(-1)
+  Lambdainv <- Lambda^(-1)
   
+  i <- 0
+  diagnorm <- 1000
   
-  i=0
-  diagnorm=1000
+  lam = rep(1,p)
+  H_init = V0%*%(diag(Lambda))%*%t(V0)
   
+  lower <- diag( (Z%*%solve(H_init)%*%t(Z))/p )
+  ratioV <- t(Z/lower)%*%Z
+  ratioV <- (ratioV + t(ratioV))/2
   
   while (abs(diagnorm) > tol){
     
-    i<-i+1
+    i <- i+1
     
-    if (i > 200){
-    warning("More than 200 iterations")
-    break
-    }
+    V_old <- V
+    ratioV_old <- ratioV
     
-    V_old=V
-    Hinv_old=V_old%*%diag(Lambdainv)%*%t(V_old)
-    H_old=V_old%*%diag(Lambda)%*%t(V_old)
+    Hinv_old <- V_old%*%diag(Lambdainv)%*%t(V_old)
+    H_old <- V_old%*%diag(Lambda)%*%t(V_old)
     
     lower <- diag( (Z%*%Hinv_old%*%t(Z))/p )
     ratioV <- t(Z/lower)%*%Z
-    # Make sure ratioV
     ratioV <- (ratioV + t(ratioV))/2
     
     eigen_Psi<-eigen(ratioV)
     V=eigen_Psi[[2]][,order(eigen_Psi[[1]])]
     
+    diagnorm <- norm(t(V_old)%*%ratioV_old%*%V_old%*%diag(Lambdainv)
+                     - diag(Lambdainv)%*%t(V)%*%ratioV%*%V, "F")
     
-    diagnorm=norm(t(V)%*%ratioV%*%V%*%diag(Lambdainv)
-                  - diag(Lambdainv)%*%t(V)%*%ratioV%*%V, "F")
-    
-  
   }
- 
-
-
+  
   return(V)
   
 }
 
-
-RNL <- function(Y, C=F, cov=T){
+### Robust nonlinear shrinkage, where Y is an nxp data matrix and C = T refers to the R-C-NL approach.
+RNL <- function(Y, C = T){
   
   n <- dim(Y)[1]
   p <- dim(Y)[2]
   
-  Y<-scale(Y,scale=F)
-  traceShat<-sum( diag(var(Y)) )
+  Y <- scale(Y,scale=F)
+  traceShat <- (diag(var(Y)))
   
-  if (C==T){
+  if (C == T){
     
-    dsquare=diag(var(Y))
-    Y=t(apply(Y,1,function(y) y/sqrt(dsquare)))
+    dsquare <- diag(var(Y))
+    Y <- t(apply(Y,1,function(y){y/sqrt(dsquare)}))
     
-  }else{
+  } else {
     
-    dsquare=rep(1,p) 
+    dsquare <- rep(1,p) 
   }
   
-  Z<-t(apply(Y,1, function(x) x/sqrt(sum(x^2)) ))
+  Z <- t(apply(Y,1, function(x){x/sqrt(sum(x^2))}))
        
-  Lambda<-QIS(Z)[[2]]
+  Lambda<-myQIS(Z)[[2]]
   Lambda<-sort(Lambda)
   
-  V<-VIteration(Z=Z, Lambda=Lambda)
+  V <- VIteration(Z=Z,Lambda=Lambda)
   
-  # 
   H_inv <- V%*%diag(Lambda^(-1))%*%t(V)
-  lower <- diag( (Z%*%H_inv%*%t(Z))/p )
-  Y<-Z/sqrt(lower)
+  lower <- diag((Z%*%H_inv%*%t(Z))/p)
+  Y <- Z/sqrt(lower)
   
-  H0<-QIS(Y)[[1]]
+  H0 <- myQIS(Y)[[1]]
   
-  H <- diag( sqrt(dsquare))%*%H0%*%diag( sqrt(dsquare))
+  H <- diag(sqrt(dsquare))%*%H0%*%diag(sqrt(dsquare))
   
-  if (cov==T){
-   # If we are confident the covariance matrix exists
-  # (i.e., the data is not too heavy-tailed)
-    return(traceShat*H/sum(diag(H)))
-   }else {
-     # If not, sum( diag(var(Y)) ) does not make sense and so
-     # we standardize by p.
-     return(p*H/sum(diag(H))) 
-    }
+  return(traceShat*H/sum(diag(H)))
   
 }
 

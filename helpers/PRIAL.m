@@ -1,6 +1,24 @@
-function [prial] = PRIAL(S,Sigma_hat,Sigma)
 
-p = size(Sigma,1);
+% Percentage Relative Improvement in Average Loss (PRIAL)
+
+%% Input:
+
+% S: sample covariance matrix
+
+% Sigma_hat: estimated covariance matrix
+
+% Sigma: true covariance matrix
+
+% note: the provided matrices can also be 3 dimensional arrays of multiple simulation
+% runs.
+
+%% Output:
+
+% prial: numerical value of the prial.
+
+%%
+
+function [prial] = PRIAL(S,Sigma_hat,Sigma)
 
 for i = 1:size(Sigma_hat,3)
 
@@ -11,18 +29,9 @@ for i = 1:size(Sigma_hat,3)
         a(i) = norm(Sigma_hat(:,:,i)-Sigma(:,:,i),'fro')^2;
         b(i) = norm(S(:,:,i)-Sigma(:,:,i),'fro')^2;
     end
-
-    %  a(i) = norm(Sigma_hat(:,:,i)-Sigma)^2;
-    %  b(i) = norm(S(:,:,i)-Sigma)^2;
-    %     a(i) = (norm(Sigma_hat(:,:,i)-Sigma,'fro')/sqrt(p))^2;
-    %     b(i) = (norm(S(:,:,i)-Sigma,'fro')/sqrt(p))^2;
-    %
-    %     A = Sigma_hat(:,:,i)-Sigma;
-    %     B = S(:,:,i)-Sigma;
-    %     a(i) = sqrt(trace(A'*A)/sqrt(p))^2;
-    %     b(i) = sqrt(trace(B'*B)/sqrt(p))^2;
+    
 end
 
-prial = (1 - mean(a)/mean(b)) * 100;
+prial = (1-mean(a)/mean(b))*100;
 
 
