@@ -57,8 +57,8 @@ VIteration <- function(Z, Lambda){
   lam = rep(1,p)
   H_init = V0%*%(diag(Lambda))%*%t(V0)
   
-  lower <- diag( (Z%*%solve(H_init)%*%t(Z))/p )
-  ratioV <- t(Z/lower)%*%Z
+  lower <- diag((Z%*%solve(H_init)%*%t(Z))/p)
+  ratioV <- (t(Z/lower)%*%Z)/n
   ratioV <- (ratioV + t(ratioV))/2
   
   while (abs(diagnorm) > tol){
@@ -71,8 +71,8 @@ VIteration <- function(Z, Lambda){
     Hinv_old <- V_old%*%diag(Lambdainv)%*%t(V_old)
     H_old <- V_old%*%diag(Lambda)%*%t(V_old)
     
-    lower <- diag( (Z%*%Hinv_old%*%t(Z))/p )
-    ratioV <- t(Z/lower)%*%Z
+    lower <- diag((Z%*%Hinv_old%*%t(Z))/p)
+    ratioV <- (t(Z/lower)%*%Z)/n
     ratioV <- (ratioV + t(ratioV))/2
     
     eigen_Psi<-eigen(ratioV)
@@ -80,7 +80,6 @@ VIteration <- function(Z, Lambda){
     
     diagnorm <- norm(t(V_old)%*%ratioV_old%*%V_old%*%diag(Lambdainv)
                      - diag(Lambdainv)%*%t(V)%*%ratioV%*%V, "F")
-    
   }
   
   return(V)
