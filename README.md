@@ -3,7 +3,7 @@ Robust Nonlinear Shrinkage (R-NL)
 
 The main function of R-NL in matlab and R and the relevant code to replicate the simulations of the paper
 'R-NL: Covariance Matrix Estimation for Elliptical Distributions based on Nonlinear Shrinkage',
-see: https://arxiv.org/abs/2210.14854
+see: https://ieeexplore.ieee.org/abstract/document/10109124
 
 Note: 'run_sim_tdist.m' is the main file to replicate the simulations.
 
