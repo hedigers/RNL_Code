@@ -26,7 +26,8 @@
 
 function [H_hat, V] = VIteration(Z, eig_fix, alpha, crit, H_start)
 
-tol = 1e-10;
+tol = 1e-5;
+maxit = 10;
 [n,p] = size(Z);
 V = eye(p);
 
@@ -46,7 +47,7 @@ lower = diag((Z*inv(H_new)*Z')./p);
 ratioV = ((Z./lower)'*(Z))./n;
 ratioV = (ratioV+ratioV')/2;
 
-while abs(diagnorm) > tol
+while abs(diagnorm) > tol && i < maxit
 
     i = i+1;
 
@@ -70,7 +71,6 @@ while abs(diagnorm) > tol
     if crit == 1 && alpha ~= 1
         diagnorm = norm(H_new-H_old);
     else
-        % diagnorm = norm(H_old-V*diag(eig_fix)*V')
         diagnorm = norm(V_old'*ratioV_old*V_old*diag(eig_fix_inv) - diag(eig_fix_inv)*V'*ratioV*V, 'fro');
     end
 

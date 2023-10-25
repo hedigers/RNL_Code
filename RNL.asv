@@ -75,7 +75,7 @@ end
 
 [eig_fix] = sortLambda(eig_fix, n, p);
 
-if complicated == 1 && ~any(eig_fix<1e-10)
+if complicated == 1 && any(eig_fix<)
     [H_tmp,V] = VIteration(Z,eig_fix,beta,1);
 else
     [V,lam] = eig(cov(Z),'vector');

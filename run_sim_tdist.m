@@ -6,7 +6,7 @@ n = 10; % choose the number of observations
 
 S = 1000;
 lam_vec = [3:15,30,60,90,120,240,500,inf];
-p_vec = [20,400]; % choose the number of dimensions
+p_vec = [12,400]; % choose the number of dimensions
 II = length(p_vec);
 HH = 6;
 Prial_cell = cell(II,1);

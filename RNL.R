@@ -42,10 +42,35 @@ myQIS <- function(Y, k = 1) {
   
 }
 
+# Helper function used in RNL, where eig_fix is a vector of eigenvalues.
+# Note: The first p-n elements in eig_fix necessarily correspond to the zero eigenvalues.
+sortLambda <- function(eig_fix, n, p) {
+  eig_fix <- sort(eig_fix)
+  if (p > n) {
+    # First eigenvalues = smallest eigenvalues (in this case corresponding
+    # to the sample eigenvalues with zeros)
+    eig_fix_0 <- eig_fix[1:(p - n + 1)]
+    un <- unique(eig_fix_0)
+    if (length(un) > 1) {
+      nr <- rep(0, length(un))
+      for (i in 1:length(un)) {
+        nr[i] <- sum(eig_fix_0 == un[i])
+      }
+      ind <- which.max(nr)
+      eig_fix_0 <- rep(un[ind], length(eig_fix_0))
+    }
+    
+    eig_fix_1 <- sort(eig_fix[(p - n + 2):length(eig_fix)])
+    eig_fix <- c(eig_fix_0, eig_fix_1)
+  }
+  return(eig_fix)
+}
+
 ### helper function for RNL, updating the eigenvectors.
 VIteration <- function(Z, Lambda){
   
-  tol <- 1e-10
+  tol <- 1e-5
+  maxit <- 10
   n <- dim(Z)[1]
   p <- dim(Z)[2]
   V0 <- V <-diag(p)
@@ -61,7 +86,7 @@ VIteration <- function(Z, Lambda){
   ratioV <- (t(Z/lower)%*%Z)/n
   ratioV <- (ratioV + t(ratioV))/2
   
-  while (abs(diagnorm) > tol){
+  while ((abs(diagnorm) > tol) & (i < maxit)){
     
     i <- i+1
     
@@ -80,6 +105,7 @@ VIteration <- function(Z, Lambda){
     
     diagnorm <- norm(t(V_old)%*%ratioV_old%*%V_old%*%diag(Lambdainv)
                      - diag(Lambdainv)%*%t(V)%*%ratioV%*%V, "F")
+    
   }
   
   return(V)
@@ -108,15 +134,19 @@ RNL <- function(X, C = T){
   Z <- t(apply(X,1, function(x){x/sqrt(sum(x^2))}))
        
   Lambda<-myQIS(Z)[[2]]
-  Lambda<-sort(Lambda)
+  Lambda<-sortLambda(Lambda,n,p)
   
-  V <- VIteration(Z=Z,Lambda=Lambda)
-  
-  H_inv <- V%*%diag(Lambda^(-1))%*%t(V)
-  lower <- diag((Z%*%H_inv%*%t(Z))/p)
-  X <- Z/sqrt(lower)
-  
-  H0 <- myQIS(X)[[1]]
+  if(any(Lambda<1e-10)){
+    H0 <- myQIS(X)[[1]]
+  } else {
+    V <- VIteration(Z=Z,Lambda=Lambda)
+    
+    H_inv <- V%*%diag(Lambda^(-1))%*%t(V)
+    lower <- diag((Z%*%H_inv%*%t(Z))/p)
+    X <- Z/sqrt(lower)
+    
+    H0 <- myQIS(X)[[1]]
+  }
   
   H <- diag(sqrt(dsquare))%*%H0%*%diag(sqrt(dsquare))
   
